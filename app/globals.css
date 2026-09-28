@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-plex), var(--font-cairo), system-ui, sans-serif;
-  --font-heading: var(--font-cairo), var(--font-plex), system-ui, sans-serif;
+  --font-sans: 'IBM Plex Sans Arabic', 'Cairo', system-ui, sans-serif;
+  --font-heading: 'Cairo', 'IBM Plex Sans Arabic', system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-background-2: var(--background-2);

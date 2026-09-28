@@ -1,17 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Cairo, IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { PreferencesProvider } from '@/components/providers/preferences-provider'
 import { StoreProvider } from '@/components/providers/store-provider'
 import { AppToaster } from '@/components/app-toaster'
 import './globals.css'
-
-const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo', weight: ['500', '600', '700', '800'] })
-const plex = IBM_Plex_Sans_Arabic({
-  subsets: ['arabic', 'latin'],
-  variable: '--font-plex',
-  weight: ['400', '500', '600', '700'],
-})
 
 export const metadata: Metadata = {
   title: 'منظومة | إدارة القوى العاملة والتوظيف المحلي',
@@ -38,8 +30,14 @@ const bootScript = `(function(){try{var t=localStorage.getItem('manzuma-theme');
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ar" dir="rtl" className={`dark ${cairo.variable} ${plex.variable}`} suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className="dark" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+        />
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="app-bg min-h-dvh antialiased">
