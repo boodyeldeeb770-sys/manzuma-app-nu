@@ -1,6 +1,6 @@
 'use client'
 
-import { Banknote, ClipboardList, LayoutDashboard, MapPinned, QrCode, Settings, Users } from 'lucide-react'
+import { Banknote, ClipboardList, LayoutDashboard, MapPinned, Megaphone, QrCode, Settings, Users } from 'lucide-react'
 import { AppShell, type NavItem } from '@/components/app-shell'
 import { useStore } from '@/components/providers/store-provider'
 
@@ -12,12 +12,13 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
     { href: '/employer/kiosk', label: 'navKiosk', icon: QrCode },
     { href: '/employer/staff', label: 'navStaff', icon: Users },
     { href: '/employer/requests', label: 'navRequests', icon: ClipboardList, badge: pending },
+    { href: '/employer/announcements', label: 'navAnnouncements', icon: Megaphone },
     { href: '/employer/payroll', label: 'navPayroll', icon: Banknote },
     { href: '/employer/recruitment', label: 'navRecruit', icon: MapPinned },
     { href: '/employer/settings', label: 'navSettings', icon: Settings },
   ]
   return (
-    <AppShell nav={nav} title="employerApp" userName={state.managerName} userRole={state.business.name}>
+    <AppShell nav={nav} title="employerApp" userName={state.managerName} userRole={state.business.name} audience="employer">
       {children}
     </AppShell>
   )

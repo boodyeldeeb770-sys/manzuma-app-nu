@@ -3,12 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Bell, LogOut, Settings } from 'lucide-react'
+import { LogOut, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Logo, SettingsModal, ThemeToggle } from './controls'
+import { NotificationsMenu } from './notifications-menu'
 import { usePreferences } from './providers/preferences-provider'
 import { Avatar, Btn } from './ui-kit'
 import type { DictKey } from '@/lib/i18n'
+import type { Audience } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export interface NavItem {
@@ -24,6 +26,8 @@ export function AppShell({
   userName,
   userRole,
   topSlot,
+  audience,
+  settingsExtra,
   children,
 }: {
   nav: NavItem[]
@@ -31,6 +35,8 @@ export function AppShell({
   userName: string
   userRole: string
   topSlot?: React.ReactNode
+  audience: Audience
+  settingsExtra?: React.ReactNode
   children: React.ReactNode
 }) {
   const pathname = usePathname()
@@ -88,10 +94,7 @@ export function AppShell({
               {new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
             <div className="ms-auto flex items-center gap-2">
-              <Btn variant="outline" size="icon" aria-label="الإشعارات" className="relative">
-                <Bell />
-                <span className="absolute top-2 end-2 size-2 rounded-full bg-gold ring-2 ring-background" />
-              </Btn>
+              <NotificationsMenu audience={audience} />
               <ThemeToggle />
               <Btn variant="outline" size="icon" onClick={() => setSettingsOpen(true)} aria-label={t('settings')}>
                 <Settings />
@@ -129,7 +132,7 @@ export function AppShell({
         })}
       </nav>
 
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} extra={settingsExtra} />
     </div>
   )
 }

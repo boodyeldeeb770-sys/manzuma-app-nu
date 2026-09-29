@@ -52,7 +52,7 @@ export function LangSwitch({ className }: { className?: string }) {
   )
 }
 
-export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function SettingsModal({ open, onClose, extra }: { open: boolean; onClose: () => void; extra?: React.ReactNode }) {
   const { t, theme, setTheme } = usePreferences()
   const { reset } = useStore()
   return (
@@ -81,6 +81,7 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
           <div className="mb-2 text-sm font-semibold">{t('language')}</div>
           <LangSwitch className="w-fit" />
         </div>
+        {extra}
         <Btn
           variant="danger"
           onClick={() => {

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState } from 'react'
 import { CalendarClock, CloudOff, FileText, IdCard, MapPinned, Receipt } from 'lucide-react'
 import { AppShell, type NavItem } from '@/components/app-shell'
+import { EmployeeAccountSettings } from '@/components/employee-account-settings'
 import { useStore } from '@/components/providers/store-provider'
 import { cn } from '@/lib/utils'
 
@@ -75,6 +76,8 @@ export default function EmployeeLayout({ children }: { children: React.ReactNode
         userName={me.name}
         userRole={me.title}
         topSlot={<OfflineBar online={online} pending={pending} />}
+        audience="employee"
+        settingsExtra={<EmployeeAccountSettings />}
       >
         {children}
       </AppShell>

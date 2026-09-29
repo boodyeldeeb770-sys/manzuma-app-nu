@@ -13,7 +13,10 @@ export function NegotiationChat({ threadId, replies, quick, className }: { threa
   const [typing, setTyping] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), [messages.length, typing])
+  // scrollIntoView returns a Promise in recent browsers; an effect must not return it.
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [messages.length, typing])
 
   const push = (from: 'me' | 'them', value: string) =>
     update((s) => ({

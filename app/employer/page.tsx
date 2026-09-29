@@ -7,6 +7,7 @@ import { AlarmClock, ArrowLeft, Banknote, ClipboardList, Command, Megaphone, QrC
 import { toast } from 'sonner'
 import { AreaChart, BarsMini, KpiCard, RadialRing } from '@/components/charts'
 import { useStore } from '@/components/providers/store-provider'
+import { useAnnouncementSender } from '@/components/announcements'
 import { Avatar, Btn, btnVariants, GlassCard, Modal, PageHeader, Pill } from '@/components/ui-kit'
 import { PEAK_HOURS, WEEK_DAYS, WEEKLY_ATTENDANCE, WEEKLY_LATE, WEEKLY_OVERTIME } from '@/lib/mock-data'
 import { STATUS_META } from '@/lib/status'
@@ -175,17 +176,29 @@ export default function EmployerDashboard() {
 }
 
 function AnnouncementModal({ open, onClose, count }: { open: boolean; onClose: () => void; count: number }) {
+  const router = useRouter()
+  const { sendAnnouncement } = useAnnouncementSender()
   return (
     <Modal open={open} onClose={onClose} title="إرسال إعلان للفريق" description={`سيصل الإشعار إلى ${count} موظفين عبر التطبيق`}>
       <form
         className="flex flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault()
-          toast.success('تم إرسال الإعلان للفريق')
+          const data = new FormData(e.currentTarget)
+          const text = String(data.get('text') ?? '').trim()
+          if (!text) return
+          sendAnnouncement(text, data.get('important') === 'on')
+          toast.success('تم إرسال الإعلان للفريق', {
+            action: { label: 'متابعة التفاعل', onClick: () => router.push('/employer/announcements') },
+          })
           onClose()
         }}
       >
-        <textarea required rows={4} className="field" placeholder="مثال: اجتماع الفريق غداً الساعة 9 صباحاً في الفرع الرئيسي" aria-label="نص الإعلان" />
+        <textarea name="text" required rows={4} className="field" placeholder="مثال: اجتماع الفريق غداً الساعة 9 صباحاً في الفرع الرئيسي" aria-label="نص الإعلان" />
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="important" className="size-4 accent-[var(--brand)]" />
+          إعلان مهم (يتطلب تأكيد اطلاع من الموظف)
+        </label>
         <Btn type="submit" size="lg">
           <Megaphone />
           إرسال

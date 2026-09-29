@@ -21,6 +21,8 @@ function RequestsContent() {
   const [leaveKind, setLeaveKind] = useState<'all' | 'standard' | 'emergency'>('all')
   const [showDone, setShowDone] = useState(false)
   const [active, setActive] = useState<StaffRequest | null>(null)
+  const [actingAs, setActingAs] = useState(state.managerName)
+  const canDecide = (t: RequestType) => actingAs === state.managerName || !!state.approvalRights?.[actingAs]?.[t]
 
   useEffect(() => {
     const id = params.get('open')
@@ -36,9 +38,13 @@ function RequestsContent() {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
   const decide = (req: StaffRequest, status: RequestStatus, note: string) => {
+    if (!canDecide(req.type)) {
+      toast.error(`${actingAs} لا يملك صلاحية البت في ${REQUEST_TYPE_LABEL[req.type]}`)
+      return
+    }
     update((s) => ({
       ...s,
-      requests: s.requests.map((r) => (r.id === req.id ? { ...r, status, managerNote: note, actionBy: s.managerName, actionAt: new Date().toISOString() } : r)),
+      requests: s.requests.map((r) => (r.id === req.id ? { ...r, status, managerNote: note, actionBy: actingAs, actionAt: new Date().toISOString() } : r)),
       employees:
         req.type === 'advance' && status !== 'rejected'
           ? s.employees.map((e) => (e.id === req.employeeId ? { ...e, advances: e.advances + (req.amount ?? 0) } : e))
@@ -51,6 +57,27 @@ function RequestsContent() {
   return (
     <>
       <PageHeader title="مركز الطلبات" description="كل قرار يُسجّل باسم متخذه مع ملاحظة إلزامية لضمان الشفافية" />
+
+      <GlassCard className="mb-4 flex flex-wrap items-center gap-3 p-4">
+        <label htmlFor="acting-as" className="text-sm font-semibold">
+          اتخاذ القرار بصفة
+        </label>
+        <select id="acting-as" value={actingAs} onChange={(e) => setActingAs(e.target.value)} className="field h-9 w-auto">
+          {Object.keys(state.permissions).map((m) => (
+            <option key={m} value={m}>
+              {m} — {state.managerRoles?.[m] ?? 'مدير'}
+            </option>
+          ))}
+        </select>
+        <div className="flex flex-wrap gap-1.5">
+          {(Object.keys(REQUEST_TYPE_LABEL) as RequestType[]).map((t) => (
+            <Pill key={t} tone={canDecide(t) ? 'brand' : 'muted'}>
+              {canDecide(t) ? <Check /> : <X />}
+              {REQUEST_TYPE_LABEL[t]}
+            </Pill>
+          ))}
+        </div>
+      </GlassCard>
 
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs<Filter>
@@ -114,7 +141,13 @@ function RequestsContent() {
               </div>
               <p className="text-sm leading-relaxed">{r.details}</p>
               {r.status === 'pending' ? (
-                <Btn variant="outline" onClick={() => setActive(r)}>اتخاذ قرار</Btn>
+                canDecide(r.type) ? (
+                  <Btn variant="outline" onClick={() => setActive(r)}>اتخاذ قرار</Btn>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-border p-2.5 text-center text-xs text-muted-foreground">
+                    لا تملك صلاحية البت في هذا النوع من الطلبات
+                  </div>
+                )
               ) : (
                 <div className="rounded-xl border border-border bg-secondary p-3 text-xs">
                   <div className="mb-1 flex items-center gap-1.5 font-semibold text-brand">
@@ -133,17 +166,19 @@ function RequestsContent() {
         )}
       </div>
 
-      <DecisionModal request={active} onClose={() => setActive(null)} onDecide={decide} />
+      <DecisionModal request={active} actor={actingAs} onClose={() => setActive(null)} onDecide={decide} />
     </>
   )
 }
 
 function DecisionModal({
   request,
+  actor,
   onClose,
   onDecide,
 }: {
   request: StaffRequest | null
+  actor: string
   onClose: () => void
   onDecide: (r: StaffRequest, s: RequestStatus, note: string) => void
 }) {
@@ -184,7 +219,7 @@ function DecisionModal({
       )}
       <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
         <ShieldCheck className="size-3.5 text-brand" />
-        سيُسجّل: تم الإجراء بواسطة: {state.managerName}
+        سيُسجّل: تم الإجراء بواسطة: {actor}
       </div>
       <div className="mt-5 grid grid-cols-3 gap-2">
         <Btn variant="success" onClick={() => act('approved')}>

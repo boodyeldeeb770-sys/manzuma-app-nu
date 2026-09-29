@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { initialState } from '@/lib/mock-data'
-import type { AppState } from '@/lib/types'
+import type { AppNotification, AppState } from '@/lib/types'
 
 const STORAGE_KEY = 'manzuma-state-v1'
 
@@ -55,3 +55,10 @@ export function useStore() {
 }
 
 export const uid = () => Math.random().toString(36).slice(2, 10)
+
+export function withNotification(
+  s: AppState,
+  n: Omit<AppNotification, 'id' | 'at' | 'read'>,
+): AppState {
+  return { ...s, notifications: [{ ...n, id: uid(), at: new Date().toISOString(), read: false }, ...(s.notifications ?? [])].slice(0, 50) }
+}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { ArrowLeftRight, Banknote, CalendarDays, LogOut, Plus, ShieldCheck, Wallet } from 'lucide-react'
+import { ArrowLeftRight, Banknote, CalendarDays, LogOut, Plus, ShieldCheck, Trash2, Wallet } from 'lucide-react'
 import { toast } from 'sonner'
 import { uid, useStore } from '@/components/providers/store-provider'
 import { Btn, GlassCard, Modal, PageHeader, Pill, Tabs } from '@/components/ui-kit'
@@ -17,6 +17,14 @@ export default function MyRequestsPage() {
   const { state, update } = useStore()
   const me = state.employees.find((e) => e.id === state.me.employeeId) ?? state.employees[0]
   const [open, setOpen] = useState(false)
+  const [cancelId, setCancelId] = useState<string | null>(null)
+
+  const withdraw = () => {
+    if (!cancelId) return
+    update((s) => ({ ...s, requests: s.requests.filter((r) => !(r.id === cancelId && r.status === 'pending')) }))
+    toast.success('تم سحب الطلب')
+    setCancelId(null)
+  }
 
   // Cash advances are strictly capped at 50% of accrued (monthly) wages,
   // minus whatever advance the employee has already drawn this cycle.
@@ -88,7 +96,15 @@ export default function MyRequestsPage() {
                 <span>بتاريخ {new Date(r.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' })}</span>
               </div>
               <p className="text-sm leading-relaxed">{r.details}</p>
-              <div className="mt-auto text-xs text-muted-foreground">قُدّم {formatDateTime(r.createdAt)}</div>
+              <div className="mt-auto flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span>قُدّم {formatDateTime(r.createdAt)}</span>
+                {r.status === 'pending' && (
+                  <Btn size="sm" variant="ghost" className="text-danger" onClick={() => setCancelId(r.id)}>
+                    <Trash2 />
+                    سحب الطلب
+                  </Btn>
+                )}
+              </div>
               {r.status !== 'pending' && r.managerNote && (
                 <div className="rounded-xl border border-border bg-secondary p-3 text-xs">
                   <div className="mb-1 flex items-center gap-1.5 font-semibold text-brand">
@@ -116,6 +132,16 @@ export default function MyRequestsPage() {
           setOpen(false)
         }}
       />
+
+      <Modal open={!!cancelId} onClose={() => setCancelId(null)} title="سحب الطلب؟" description="سيُحذف الطلب نهائيًا من قائمة الإدارة ولن يمكن استرجاعه.">
+        <div className="grid grid-cols-2 gap-2">
+          <Btn variant="danger" onClick={withdraw}>
+            <Trash2 />
+            تأكيد السحب
+          </Btn>
+          <Btn variant="outline" onClick={() => setCancelId(null)}>تراجع</Btn>
+        </div>
+      </Modal>
     </>
   )
 }
