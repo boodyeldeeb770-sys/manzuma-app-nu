@@ -20,6 +20,7 @@ export interface Employee {
   advances: number
   bonus: number
   joinedAt: string
+  graceMinutes?: number
 }
 
 export type RequestType = 'swap' | 'leave' | 'advance' | 'early'
@@ -121,6 +122,12 @@ export interface AppState {
     plan: string
   }
   permissions: Record<string, Record<string, boolean>>
+  approvalRights: Record<string, Record<RequestType, boolean>>
+  managerRoles: Record<string, string>
+  defaultGraceMinutes: number
+  shiftStart: string
+  notifications: AppNotification[]
+  announcements: Announcement[]
   managerName: string
   me: {
     employeeId: string
@@ -130,4 +137,34 @@ export interface AppState {
     history: { id: string; kind: 'in' | 'out'; at: string; synced: boolean }[]
   }
   cv: CV
+}
+
+export type Audience = 'employer' | 'employee'
+
+export interface AppNotification {
+  id: string
+  audience: Audience
+  title: string
+  body: string
+  at: string
+  read: boolean
+  href?: string
+}
+
+export interface AnnouncementReply {
+  id: string
+  employeeId: string
+  text: string
+  at: string
+}
+
+export interface Announcement {
+  id: string
+  text: string
+  by: string
+  at: string
+  important?: boolean
+  readBy: string[]
+  ackBy: string[]
+  replies: AnnouncementReply[]
 }

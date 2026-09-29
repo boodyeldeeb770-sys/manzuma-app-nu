@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Printer, QrCode, Search, Star, UserPlus } from 'lucide-react'
+import { Eye, EyeOff, Printer, QrCode, Search, Star, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { QrImage } from '@/components/qr-image'
 import { uid, useStore } from '@/components/providers/store-provider'
@@ -11,6 +11,23 @@ import { egp } from '@/lib/mock-data'
 import { STATUS_META } from '@/lib/status'
 import type { Employee } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+function PinCell({ pin, name }: { pin?: string; name: string }) {
+  const [shown, setShown] = useState(false)
+  if (!pin) return <span className="text-xs text-muted-foreground">—</span>
+  return (
+    <button
+      type="button"
+      onClick={() => setShown((v) => !v)}
+      className="flex items-center gap-1.5 rounded-lg px-2 py-1 font-mono text-sm tabular-nums hover:bg-accent"
+      aria-label={shown ? `إخفاء رمز ${name}` : `إظهار رمز ${name}`}
+      dir="ltr"
+    >
+      {shown ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+      {shown ? pin : '••••'}
+    </button>
+  )
+}
 
 function scoreTone(v: number) {
   return v >= 90 ? 'var(--brand)' : v >= 80 ? 'var(--gold)' : 'var(--danger)'
@@ -65,6 +82,7 @@ function StaffContent() {
             <tr className="border-b border-border text-xs text-muted-foreground">
               <th className="p-4 text-start font-medium">الموظف</th>
               <th className="p-4 text-start font-medium">الفرع</th>
+              <th className="p-4 text-start font-medium">رمز PIN</th>
               <th className="p-4 text-start font-medium">الحالة اليوم</th>
               <th className="p-4 text-start font-medium">تقييم المدير</th>
               <th className="p-4 text-start font-medium">الانضباط الآلي</th>
@@ -85,6 +103,9 @@ function StaffContent() {
                   </div>
                 </td>
                 <td className="p-4 text-muted-foreground">{e.branch}</td>
+                <td className="p-4">
+                  <PinCell pin={e.pin} name={e.name} />
+                </td>
                 <td className="p-4">
                   <Pill tone={STATUS_META[e.status].tone}>
                     {STATUS_META[e.status].label}
@@ -118,7 +139,7 @@ function StaffContent() {
             ))}
             {!list.length && (
               <tr>
-                <td colSpan={7} className="p-10 text-center text-muted-foreground">لا توجد نتائج مطابقة</td>
+                <td colSpan={8} className="p-10 text-center text-muted-foreground">لا توجد نتائج مطابقة</td>
               </tr>
             )}
           </tbody>

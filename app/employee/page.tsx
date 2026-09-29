@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CameraOff, CheckCircle2, CloudOff, LogIn, LogOut, MapPin, QrCode, RefreshCw, ScanLine, ShieldCheck, Wifi, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { EmployeeAnnouncements } from '@/components/announcements'
 import { uid, useStore } from '@/components/providers/store-provider'
 import { Btn, GlassCard, PageHeader, Pill } from '@/components/ui-kit'
 import { cn } from '@/lib/utils'
@@ -199,6 +200,8 @@ export default function ShiftHubPage() {
         }
       />
 
+      <EmployeeAnnouncements />
+
       <div className="grid gap-4 lg:grid-cols-5">
         {/* Scanner / check-in */}
         <GlassCard className="flex flex-col gap-4 p-6 lg:col-span-3">
@@ -263,7 +266,7 @@ export default function ShiftHubPage() {
                 {phase === 'scanning' && (
                   <>
                     <ScanLine className="size-4 animate-pulse" />
-                    جارٍ قراءة رمز QR...
+                    جار�� قراءة رمز QR...
                   </>
                 )}
                 {phase === 'locating' && (
